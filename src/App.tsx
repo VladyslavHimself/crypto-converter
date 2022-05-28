@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
@@ -46,7 +47,38 @@ const rows = [
     createData('Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
+type TCoin = {
+    name: string;
+    fullName: string;
+    imageUrl: string;
+    price: number;
+    volume24hour: number;
+};
+
 function App() {
+
+    const [coins, setCoins] = useState<TCoin[]>([]);
+
+    useEffect(() => {
+        const callback = async () => {
+            const { data: { Data: quotes } } =
+                await axios.get("https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD");
+            const parsedCoins: TCoin[] = quotes.map((coin: any) => {
+                const obj: TCoin = {
+                    name: coin.CoinInfo.Name,
+                    fullName: coin.CoinInfo.FullName,
+                    imageUrl: `https://www.cryptocompare.com/${coin.CoinInfo.ImageUrl}`,
+                    price: coin.RAW.USD.PRICE.toFixed(2),
+                    volume24hour: parseInt(coin.RAW.USD.VOLUME24HOUR),
+                };
+
+                return obj;
+            });
+            setCoins(parsedCoins);
+        };
+        callback();
+    }, []);
+
   return (
       <Wrapper maxWidth="lg">
         <Grid container spacing={3}>
@@ -57,25 +89,25 @@ function App() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell></TableCell>
-                                    <TableCell align="left">Fullname</TableCell>
                                     <TableCell align="left">Name</TableCell>
+                                    <TableCell align="left">Fullname</TableCell>
                                     <TableCell align="left">Price</TableCell>
                                     <TableCell align="left">Volume 24 hour</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows.map((row, index) => (
+                                {coins && coins.map((coin, index) => (
                                     <TableRow
-                                        key={row.name}
+                                        key={coin.name}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell component="th" scope="row">
-                                            { index + 1}
+                                            <img style={{width: '40px', height: '40px'}} src={coin.imageUrl} alt="coin icon"/>
                                         </TableCell>
-                                        <TableCell align="left">{row.calories}</TableCell>
-                                        <TableCell align="left">{row.fat}</TableCell>
-                                        <TableCell align="left">{row.carbs}</TableCell>
-                                        <TableCell align="left">{row.protein}</TableCell>
+                                        <TableCell align="left">{coin.name}</TableCell>
+                                        <TableCell align="left">{coin.fullName}</TableCell>
+                                        <TableCell align="left">${coin.price}</TableCell>
+                                        <TableCell align="left">${coin.volume24hour}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
