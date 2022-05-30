@@ -68,7 +68,7 @@ function App() {
                     name: coin.CoinInfo.Name,
                     fullName: coin.CoinInfo.FullName,
                     imageUrl: `https://www.cryptocompare.com/${coin.CoinInfo.ImageUrl}`,
-                    price: coin.RAW.USD.PRICE.toFixed(2),
+                    price: coin.RAW.USD.PRICE.toFixed(3),
                     volume24hour: parseInt(coin.RAW.USD.VOLUME24HOUR),
                 };
 
@@ -96,7 +96,7 @@ function App() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {coins && coins.map((coin, index) => (
+                                {!coins.length ? 'Loading..' : coins.map((coin, index) => (
                                     <TableRow
                                         key={coin.name}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -154,9 +154,6 @@ function App() {
                             </Select>
                         </FormControl>
                     </CryptoInputBox>
-                    <Typography marginTop={'30px'} variant="h5" component="h2">
-                        29,41 Українська гривня
-                    </Typography>
                 </ConverterContainer>
             </Grid>
         </Grid>
